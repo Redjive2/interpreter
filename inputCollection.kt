@@ -4,15 +4,15 @@ interface io {
     // what an incredible interface
     fun readFile(fileName: String): String
     fun convertInput(input: String, config: genericConfig): Any
-    fun newCustomConfig(separators: MutableList<String>, lineSeparators: Char, codeBuffers: MutableList<String>, operations: MutableList<Boolean>): customConfig.container
+    fun newCustomConfig(separators: MutableList<String>, lineSeparators: Char, codeBuffers: MutableList<String>): customConfig.container
 }
+
 
 //configs for tokenizing and converting input
 abstract class genericConfig {
     abstract val separators: MutableList<String>
     abstract val lineSeparator: Char
     abstract val codeBuffers: MutableList<String>
-    abstract val operations: MutableList<Boolean>
 }
 
 abstract class mainConfig: genericConfig() {
@@ -20,7 +20,6 @@ abstract class mainConfig: genericConfig() {
         override val separators = mutableListOf(" ", ";", "\r\n")
         override val lineSeparator = ';'
         override val codeBuffers = mutableListOf("/start/", "/end/")
-        override val operations = mutableListOf(true, true, true)
     }
 }
 
@@ -29,7 +28,6 @@ abstract class customConfig: genericConfig() {
         override var separators = mutableListOf<String>()
         override var lineSeparator = ' '
         override var codeBuffers = mutableListOf<String>()
-        override var operations = mutableListOf<Boolean>()
     }
 }
 
@@ -40,19 +38,17 @@ object inputCollector: io {
     override fun convertInput(input: String, config: genericConfig): Any {
         var output: Any = Unit
 
-        if (config.operations[0]) { output = tokenize(input, config) }
-        if (config.operations[1]) { /* TODO put stuff here */ }
+        output = tokenize(input, config)
 
         return output
     }
 
-    override fun newCustomConfig(separators: MutableList<String>, lineSeparator: Char, codeBuffers: MutableList<String>, operations: MutableList<Boolean>): customConfig.container {
+    override fun newCustomConfig(separators: MutableList<String>, lineSeparator: Char, codeBuffers: MutableList<String>): customConfig.container {
         var output = customConfig
 
         output.separators = separators
         output.lineSeparator = lineSeparator
         output.codeBuffers = codeBuffers
-        output.operations = operations
 
         return output
     }
@@ -60,7 +56,7 @@ object inputCollector: io {
     //public functions
     //----------------------------------------------------------------------------------
     //private functions
-    
+
     private fun tokenize(input: String, config: genericConfig): String {
         var output: Any
         var computable: Any
