@@ -1,0 +1,7 @@
+/start/
+
+ind 0 = Hello_World_!
+
+log ind 0
+
+/end/ 
