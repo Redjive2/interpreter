@@ -9,13 +9,13 @@ interface io {
 
 
 //configs for tokenizing and converting input
-abstract class genericConfig {
-    abstract val separators: MutableList<String>
-    abstract val lineSeparator: Char
-    abstract val codeBuffers: MutableList<String>
+open class genericConfig {
+    open val separators: MutableList<String> = mutableListOf()
+    open val lineSeparator: Char = '\u0000'
+    open val codeBuffers: MutableList<String> = mutableListOf()
 }
 
-abstract class mainConfig: genericConfig() {
+class mainConfig: genericConfig() {
     companion object container: genericConfig() {
         override val separators = mutableListOf(" ", ";", "\r\n")
         override val lineSeparator = ';'
@@ -23,7 +23,7 @@ abstract class mainConfig: genericConfig() {
     }
 }
 
-abstract class customConfig: genericConfig() {
+class customConfig: genericConfig() {
     companion object container: genericConfig() {
         override var separators = mutableListOf<String>()
         override var lineSeparator = ' '
