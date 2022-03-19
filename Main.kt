@@ -36,28 +36,28 @@ fun divToStatement(input: MutableList<String>, separator: String): MutableList<M
     return output
 }
 
-abstract class genericOperator() {
+abstract class GenericOperator {
     abstract val name: String
     abstract val type: String
 
     //has function "execute"
 }
 
-abstract class reference(): genericOperator() {
-    override val name = "ref"
+abstract class Environment: GenericOperator() {
+    override val name = "env"
     override val type = "declaration"
 
-    fun execute(statement: MutableList<String>): value {
-        val output = value(statement[statement.indexOf("ref")+1], "Unit", Unit)
+    fun execute(statement: MutableList<String>): Value {
+        val output = Value(statement[statement.indexOf("ref")+1], "Unit", Unit)
         return output
     }
 }
 
-abstract class evaluate(): genericOperator() {
+abstract class Evaluate: GenericOperator() {
     override val name = "="
     override val type = "non_actionable"
 
-    fun execute(statement: MutableList<String>): genericReturnable {
+    fun execute(statement: MutableList<String>): GenericReturnable {
 
         if (statement.contains("val")) {
             if (!statement.contains("openTag")) { val type = infer(statement) }
@@ -75,11 +75,17 @@ abstract class evaluate(): genericOperator() {
     //type inference
     private fun infer(statement: MutableList<String>): String {
         var output = "INVALID"
-        if (statement.contains("stringMarker")) { output = "str" }
-        else if (statement.contains("charMarker")) { output = "char" }
-        else if (statement.contains("decMarker")) { output = "decimal" }
-        else if (statement.contains("true") || statement.contains("false")) { output = "bool" }
-        else { output = "int" }
+        output = if (statement.contains("stringMarker")) {
+            "str"
+        } else if (statement.contains("charMarker")) {
+            "char"
+        } else if (statement.contains("decMarker")) {
+            "decimal"
+        } else if (statement.contains("true") || statement.contains("false")) {
+            "bool"
+        } else {
+            "int"
+        }
         return output
     }
 
@@ -87,18 +93,18 @@ abstract class evaluate(): genericOperator() {
     private fun colInfer(statement: MutableList<String>): String {
         var output = "INVALID/COLLECTION"
         if (statement.contains("openSquareBracket")) { output = "arr" }
-        else if (statement.contains("openParentheses")) { }
+        else if (statement.contains("openParentheses")) { output = "list" }
         return output
     }
 }
 
-abstract class genericReturnable()
+abstract class GenericReturnable
 
-data class value(val name: String, var type: String, var value: Unit): genericReturnable()
+data class Value(val name: String, var type: String, var value: Unit): GenericReturnable()
 
 //basically just Unit, but with a better name and can be returned by execute methods on operators
-class Void(): genericReturnable() {
-    companion object container: genericReturnable() {
+class Void: GenericReturnable() {
+    companion object Container: GenericReturnable() {
         val void = Unit
     }
 }
