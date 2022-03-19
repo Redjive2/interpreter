@@ -1,6 +1,6 @@
 [start]
 
-ref main {
+env main {
   val foo <str> = "hello world"
   println: foo
 }
