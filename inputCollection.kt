@@ -13,13 +13,17 @@ open class genericConfig {
     open val separators: MutableList<String> = mutableListOf()
     open val lineSeparator: Char = '\u0000'
     open val codeBuffers: MutableList<String> = mutableListOf()
+    open val syntaxToReplace = mutableListOf<Char>()
+    open val strReplacement = mutableListOf<String>()
 }
 
 class mainConfig: genericConfig() {
     companion object container: genericConfig() {
-        override val separators = mutableListOf(" ", ";", "\r\n")
-        override val lineSeparator = ';'
-        override val codeBuffers = mutableListOf("/start/", "/end/")
+        override val separators = mutableListOf(" ", "\r\n")
+        override val lineSeparator = '/'
+        override val codeBuffers = mutableListOf("[start]", "[end]")
+        override val syntaxToReplace = mutableListOf<Char>('<', '>', '/', '{', '}', '"')
+        override val strReplacement = mutableListOf<String>("openTag ", " closeTag", " / ", "openBrace ", " closeBrace", " stringMarker ")
     }
 }
 
@@ -28,6 +32,8 @@ class customConfig: genericConfig() {
         override var separators = mutableListOf<String>()
         override var lineSeparator = ' '
         override var codeBuffers = mutableListOf<String>()
+        override var syntaxToReplace = mutableListOf<Char>()
+        override var strReplacement = mutableListOf<String>()
     }
 }
 
@@ -35,10 +41,12 @@ class customConfig: genericConfig() {
 object inputCollector: io {
     override fun readFile(fileName: String) = File(fileName).inputStream().readBytes().toString(Charsets.UTF_8)
 
-    override fun convertInput(input: String, config: genericConfig): Any {
-        var output: Any = Unit
+    override fun convertInput(input: String, config: genericConfig): MutableList<String> {
+        var output: MutableList<String> = mutableListOf()
+        var computable = input
 
-        output = tokenize(input, config)
+        computable = convertToParsable(input, config)
+        output = tokenize(computable, config)
 
         return output
     }
@@ -57,7 +65,20 @@ object inputCollector: io {
     //----------------------------------------------------------------------------------
     //private functions
 
-    private fun tokenize(input: String, config: genericConfig): String {
+    private fun convertToParsable(input: String, config: genericConfig): String {
+        var output = input
+        var pointer = 0
+
+        while (pointer < config.syntaxToReplace.size) {
+            output = output.replace(config.syntaxToReplace[pointer].toString(), config.strReplacement[pointer])
+
+            pointer += 1
+        }
+
+        return output
+    }
+
+    private fun tokenize(input: String, config: genericConfig): MutableList<String> {
         var output: Any
         var computable: Any
 
@@ -68,8 +89,8 @@ object inputCollector: io {
         computable = convertToTokenList(computable, config.lineSeparator)
         computable = polish(computable, config.codeBuffers, config.lineSeparator)
 
-        output = computable
-        return output.toString()
+        output = computable.toMutableList()
+        return output
     }
 
     private fun normalize(input: String, separators: MutableList<String>, replacement: Char): String {
@@ -134,11 +155,13 @@ object inputCollector: io {
         return output
     }
 
-    private fun polish(input: MutableList<String>, remove: MutableList<String>, tokenSeparator: Char): MutableList<String> {
+    private fun polish(input: MutableList<String>, removeCodeBuffer: MutableList<String>, tokenSeparator: Char): MutableList<String> {
         var computable = input
         var output: MutableList<String>
 
-        computable.removeAll(remove)
+        computable.removeAll(mutableListOf(""))
+        computable.removeAll(removeCodeBuffer)
+
         if (computable[0] == tokenSeparator.toString()) {
             computable.removeAt(0)
         }
