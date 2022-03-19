@@ -1,7 +1,8 @@
-/start/
+[start]
 
-ind 0 = Hello_World_!
+ref main {
+  val foo <str> = "hello world"
+  println: foo
+}
 
-log ind 0
-
-/end/ 
+[end] 
