@@ -1,8 +1,10 @@
 [start]
 
-env main {
-  val foo <str> = "hello world"
-  println: foo
+global env primary {
+  main env secondary {
+    val foo <str> = "hello world"
+    println: foo
+  }
 }
 
 [end] 
