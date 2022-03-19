@@ -1,0 +1,46 @@
+
+interface pubFuns {
+   fun errorCheck(input: MutableList<String>, config: genericErrorConfig)
+}
+
+open class genericErrorConfig {
+    open var compatibilityTable: MutableList<MutableList<Boolean>> = mutableListOf(
+        mutableListOf()
+    )
+    open var tagList: MutableList<String> = mutableListOf()
+}
+
+class mainEC: genericErrorConfig() {
+    companion object container: genericErrorConfig() {
+        override var compatibilityTable: MutableList<MutableList<Boolean>> = mutableListOf(
+            mutableListOf(false)
+        )
+        override var tagList: MutableList<String> = mutableListOf()
+    }
+}
+
+private fun tagCompatibilityCheck(input: MutableList<String>, lookupList: MutableList<String>, validityList: MutableList<MutableList<Boolean>>): Boolean {
+    var output = true
+    var pointer = 0
+    var allIndices = mutableListOf<Int>()
+    var subPointer = 0
+
+    //finds every index it needs to run through; does not cull redundancies
+    while (pointer < input.size) {
+        allIndices.add(lookupList.indexOf(input[pointer]))
+        pointer += 1
+    }
+
+    pointer = 0
+
+    while (pointer < input.size) {
+        while (subPointer < allIndices.size) {
+            if (!validityList[pointer][ (allIndices[subPointer]) ] ) { output = false }
+            subPointer += 1
+        }
+        pointer += 1
+    }
+
+    return output
+
+}
