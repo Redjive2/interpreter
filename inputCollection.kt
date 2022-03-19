@@ -69,6 +69,9 @@ object inputCollector: io {
         var output = input
         var pointer = 0
 
+        if (!input.contains("[start]")) { output = "[start]\r\n$input" }
+        if (!input.contains("[end]")) { output = "$input\r\n[end]" }
+
         while (pointer < config.syntaxToReplace.size) {
             output = output.replace(config.syntaxToReplace[pointer].toString(), config.strReplacement[pointer])
 
